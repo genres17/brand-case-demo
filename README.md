@@ -7,6 +7,7 @@ b站黑马的java web新版课程最后综合练习实现个人的源码，部�
 
 ## 使用方式
 方法1：直接download下载源码，然后在IDEA中打开源码位置，IDEA会自动识别Maven项目
+
 方法2：
 1. 先git clone 到本地
 ```bash
