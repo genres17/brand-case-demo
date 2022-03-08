@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <!--            数据库的配置文件-->
+            <dataSource type="POOLED">
+                <!--   mysql8.0以后驱动用这个             -->
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="url" value=""/>
+                <property name="username" value=""/>
+                <property name="password" value=""/>
+            </dataSource>
+        </environment>
+
+    </environments>
+
+    <mappers>
+<!--        加载sql映射配置文件-->
+<!--        <mapper resource="cn/itheima/mapper/UserMapper.xml"/>-->
+        <package name="cn.itcast.dao"/>
+    </mappers>
+</configuration>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/vue.js"></script>
+    <script src="js/axios-0.18.0.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="css/brand_chart.css">
+
+</head>
+<body>
+<div id="brand_chart">
+
+    <!--    表单  -->
+    <el-form :inline="true" :model="brand" class="demo-form-inline">
+        <el-form-item label="当前状态">
+            <el-select v-model="brand.status" placeholder="当前状态">
+                <el-option label="启用" value="1"></el-option>
+                <el-option label="禁用" value="0"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="企业名称">
+            <el-input v-model="brand.companyName" placeholder="企业名称"></el-input>
+        </el-form-item>
+        <el-form-item label="品牌名称">
+            <el-input v-model="brand.brandName" placeholder="品牌名称"></el-input>
+        </el-form-item>
+
+        <el-form-item>
+            <el-button type="primary" @click="onSubmit">查询</el-button>
+            <el-button @click="reset">重置</el-button>
+        </el-form-item>
+    </el-form>
+
+    <el-row>
+        <el-button type="danger" plain @click="deleteBrands">批量删除</el-button>
+        <el-button type="primary" plain @click="dialogFormVisible = true">新增</el-button>
+    </el-row>
+
+    <el-dialog title="添加品牌" :visible.sync="dialogFormVisible" width="30%">
+
+        <el-form ref="form" :model="brand"  label-width="auto">
+            <el-form-item label="品牌名称" >
+                <el-input v-model="brand.brandName"></el-input>
+            </el-form-item>
+            <el-form-item label="企业名称">
+                <el-input v-model="brand.companyName"></el-input>
+            </el-form-item>
+            <el-form-item label="排序">
+                <el-input v-model="brand.order"></el-input>
+            </el-form-item>
+
+            <el-form-item label="备注">
+                <el-input type="textarea" v-model="brand.description"></el-input>
+            </el-form-item>
+            <el-form-item label="状态">
+                <el-switch v-model="brand.status"
+                active-value="1" inactive-value="0"></el-switch>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="addBrand">立即创建</el-button>
+            <el-button @click="dialogFormVisible = false">取消</el-button>
+        </div>
+    </el-dialog>
+
+    <el-dialog title="修改品牌" :visible.sync="dialogFormVisible1" width="30%">
+
+        <el-form ref="form" :model="updateBrand"  label-width="auto">
+            <el-form-item label="品牌名称" >
+                <el-input v-model="updateBrand.brandName"></el-input>
+            </el-form-item>
+            <el-form-item label="企业名称">
+                <el-input v-model="updateBrand.companyName"></el-input>
+            </el-form-item>
+            <el-form-item label="排序">
+                <el-input v-model="updateBrand.order"></el-input>
+            </el-form-item>
+
+            <el-form-item label="备注">
+                <el-input type="textarea" v-model="updateBrand.description"></el-input>
+            </el-form-item>
+            <el-form-item label="状态">
+                <el-switch v-model="updateBrand.status"
+                           active-value=1 inactive-value=0></el-switch>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="doUpdate">立即修改</el-button>
+            <el-button @click="dialogFormVisible1 = false">取消</el-button>
+        </div>
+    </el-dialog>
+
+
+    <!--    表格-->
+<!--    prop属性对应data的字段名，label对应表格显示的名称-->
+<!--    @selection-change="handleSelectionChange" 定义操作复选框选择操作函数-->
+    <template >
+        <el-table
+                :data="tableData"
+                style="width: 100%"
+                :row-class-name="tableRowClassName"
+                @selection-change="handleSelectionChange">
+            <el-table-column
+                    type="selection"
+                    width="55">
+            </el-table-column>
+            <el-table-column
+                    type="index"
+                    :index="startIndex"
+                    width="50">
+            </el-table-column>
+
+            <el-table-column
+                    prop="brandName"
+                    label="品牌名称"
+                    align="center"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="companyName"
+                    label="企业名称"
+                    align="center"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="order"
+                    align="center"
+                    label="排序">
+            </el-table-column>
+            <el-table-column
+                    prop="statusStr"
+                    align="center"
+                    label="当前状态">
+            </el-table-column>
+            <el-table-column
+                    align="center"
+                    label="操作">
+                <template slot-scope="scope">
+                <el-button type="primary" plain @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                <el-button type="danger" plain @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </template>
+
+    <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[5, 10, 15, 20]"
+            :page-size="100"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="totalPage">
+    </el-pagination>
+</div>
+<script src="js/brand_chart.js"></script>
+</body>
+</html>
